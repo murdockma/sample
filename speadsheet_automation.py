@@ -2,6 +2,24 @@ import pandas as pd
 import numpy as np
 
 class WeeklyMetrics:
+    """
+    A class for calculating weekly metrics for the call center (Automates spreadhseet creation).
+
+    Attributes:
+    call_center_csv (str): The file path for the call center data.
+    dials_csv (str): The file path for the dials data.
+    contacts_csv (str): The file path for the contacts data.
+    five9_csv (str): The file path for the Five9 data.
+    paylocity_csv (str): The file path for the Paylocity data.
+    start_date (str): The start date for the week to be analyzed in "YYYY-MM-DD" format.
+    end_date (str): The end date for the week to be analyzed in "YYYY-MM-DD" format.
+
+    Methods:
+    get_sets(): Extracts information about sets from the call center dataframe and returns a DataFrame with columns for the agent name and their number of sets.
+    get_contacts(): Extracts information about contacts from the contacts dataframe and returns a DataFrame with columns for the agent name and their number of contacts and sets.
+    get_dials(): Extracts information about dials from the dials dataframe and returns a DataFrame with columns for the agent name and their number of dials along with other calculated values.
+    calculate_five9_calling_hours(): Calculates the total time each agent spent in a "Ready" state, an "On Call" state, and on the phone ("Five9 calling hours") based on the input data frame of Five9 call center agent data and returns a DataFrame with columns for the agent name and their total Five9 calling hours.
+    """
     
     def __init__(self, call_center_csv, dials_csv, contacts_csv, five9_csv, paylocity_csv, start_date, end_date):
         self.call_center_df = pd.read_csv(call_center_csv)
