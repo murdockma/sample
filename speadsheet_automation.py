@@ -298,7 +298,7 @@ def _valid_end_date():
             print(f"{end_date} is not a valid date, use format 'yyyy-mm-dd'")
     
         
-# instantiate class
+# Instantiate weekly metrics class
 instance = weekly_metrics(call_center_csv="data/call_center_master_list.csv",
                       dials_csv="data/total_warm_dials.csv",
                       contacts_csv="data/total_warm_contacts.csv",
@@ -307,5 +307,5 @@ instance = weekly_metrics(call_center_csv="data/call_center_master_list.csv",
                       start_date = _valid_start_date(),
                       end_date=_valid_end_date())
 
-# run final method
+# Run method to produce excel sheet
 instance.clean_and_export()
