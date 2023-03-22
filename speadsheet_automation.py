@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-class WeeklyMetrics:
+class weekly_metrics:
     """
     A class for calculating weekly metrics for the call center (Automates spreadhseet creation).
 
@@ -304,7 +304,7 @@ instance = weekly_metrics(call_center_csv="data/call_center_master_list.csv",
                       contacts_csv="data/total_warm_contacts.csv",
                       five9_csv="data/agent_daily_summary.csv",
                       paylocity_csv="data/master_timecard_summary.csv",
-                      start_date = _valid_start_date(),
+                      start_date=_valid_start_date(),
                       end_date=_valid_end_date())
 
 # Run method to produce excel sheet
