@@ -7,3 +7,5 @@ This was fundamental for relieving technical managers from manually creating thi
 The entire script is written in Python using packages like Pandas and NumPy.
 
 Confidential information has been removed or masked with arbitrary values.
+
+The script is contained in the .py file and an example of the output is contained in the .png file.
