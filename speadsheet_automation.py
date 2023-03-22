@@ -15,6 +15,9 @@ class WeeklyMetrics:
     def get_sets(self):
         """
         Extracts information about sets from the call center dataframe.
+        
+        Returns:
+            A DataFrame with columns for the agent name and their number of sets.
         """
         
         # Normalize the time in the call center dataframe to just the date
@@ -37,6 +40,9 @@ class WeeklyMetrics:
     def get_contacts(self):
         """
         Extracts information about contacts from the contacts dataframe.
+        
+        Returns:
+            A DataFrame with columns for the agent name and their number of contacts and sets.
         """
         
         # Extract the agent username from the email address
@@ -56,6 +62,9 @@ class WeeklyMetrics:
     def get_dials(self):
         """
         Extracts information about dials from the dials dataframe.
+        
+        Returns:
+            A DataFrame with columns for the agent name and their number of dials along with other calculated values.
         """
         
         # Drop the column that represents the agent group, since we don't need it
@@ -85,6 +94,14 @@ class WeeklyMetrics:
         return merged_df
         
     def calculate_five9_calling_hours(self):
+        """
+        Calculates the total time each agent spent in a "Ready" state, an "On Call" state, and on the phone ("Five9 calling hours")
+        based on the input data frame of Five9 call center agent data.
+
+        Returns:
+            A DataFrame with columns for the agent name and their total Five9 calling hours.
+        """
+        
         # Split the time columns into hours, minutes, and seconds
         self.five9_call_hours[['on_call_hour', 'on_call_min', 'on_call_sec']] = self.five9_call_hours['On Call / AGENT STATE TIME'].str.split(":", expand=True).astype(float)
         self.five9_call_hours[['ready_hour', 'ready_min', 'ready_sec']] = self.five9_call_hours['Ready / AGENT STATE TIME'].str.split(":", expand=True).astype(float)
@@ -107,6 +124,14 @@ class WeeklyMetrics:
         return total_agent_hours
         
     def merge_hours_and_dials(self):
+        """
+        Merge dataframes containing dial data and Five9 calling hour data for each agent.
+
+        Returns:
+            Returns a new dataframe containing columns for agent first name, number of dials, 
+            number of contacts, number of sets, sets per dial, sets per contact, Five9 calling hours, 
+            rounded calling hours, and sets per Five9 calling hours.
+        """        
         # Merge previous dataframes
         merged_df = self.get_dials().merge(self.calculate_five9_calling_hours(), on='AGENT', how='inner')
         
@@ -125,6 +150,14 @@ class WeeklyMetrics:
         return export_df
 
     def extract_paylocity_working_hours(self):
+        """
+        Extracts the working hours for each agent from a Paylocity data frame and returns a new data frame with the agents' names
+        and their corresponding working hours.
+
+        Returns:
+            A DataFrame with columns for the agent name (first name and last initial) and their Paylocity working hours.
+        """
+        
         # Gather a list of rows containing NaN values
         is_nan = self.payloc_df.isnull()
         rows_with_nan = self.payloc_df[is_nan.any(axis=1)]
@@ -167,6 +200,12 @@ class WeeklyMetrics:
         return payloc_df_merge
 
     def clean_and_export(self):
+        """
+        Cleans and merges data from the Five9 and Paylocity dataframes, performs various calculations, and exports the resulting data to an Excel file.
+
+        Returns:
+            A DataFrame containing the cleaned and merged data, including various calculated values and additional rows for the mean and total values.
+        """
         # Merge dataframes
         merged_df = self.merge_hours_and_dials().merge(self.extract_paylocity_working_hours(), on='AGENT FIRST NAME', how='outer')
 
@@ -216,3 +255,39 @@ class WeeklyMetrics:
         filename = f'weekly_metrics_{self.start_date}_{self.end_date}.xlsx'
         excluded_df.to_excel(filename, index=False)
         return excluded_df
+    
+# These functions validate inputted dates
+def _valid_start_date():
+    flag = False
+    while flag != True:
+        start_date = str(input("Enter the start date: "))
+        try:
+            pd.to_datetime(start_date)
+            return start_date
+            break
+        except:
+            print(f"{start_date} is not a valid date, use format 'yyyy-mm-dd'")
+
+def _valid_end_date():
+    flag = False
+    while flag != True:
+        end_date = str(input("Enter the end date: "))
+        try:
+            pd.to_datetime(end_date)
+            return end_date
+            break
+        except:
+            print(f"{end_date} is not a valid date, use format 'yyyy-mm-dd'")
+    
+        
+# instantiate class
+instance = weekly_metrics(call_center_csv="data/call_center_master_list.csv",
+                      dials_csv="data/total_warm_dials.csv",
+                      contacts_csv="data/total_warm_contacts.csv",
+                      five9_csv="data/agent_daily_summary.csv",
+                      paylocity_csv="data/master_timecard_summary.csv",
+                      start_date = _valid_start_date(),
+                      end_date=_valid_end_date())
+
+# run final method
+instance.clean_and_export()
